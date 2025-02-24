@@ -83,7 +83,7 @@ impl Server {
                 .map(|v| v as u32)
                 .collect(),
             access_to: VecMap::new(),
-            tenant,
+            tenant: None,
             name: principal.take_str(PrincipalField::Name).unwrap_or_default(),
             description: principal.take_str(PrincipalField::Description),
             emails: principal
