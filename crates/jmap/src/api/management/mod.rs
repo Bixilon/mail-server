@@ -6,8 +6,6 @@
 
 pub mod dkim;
 pub mod dns;
-#[cfg(feature = "enterprise")]
-pub mod enterprise;
 pub mod log;
 pub mod principal;
 pub mod queue;
@@ -24,8 +22,6 @@ use common::{auth::AccessToken, Server};
 use directory::{backend::internal::manage, Permission};
 use dkim::DkimManagement;
 use dns::DnsManagement;
-#[cfg(feature = "enterprise")]
-use enterprise::telemetry::TelemetryApi;
 use hyper::Method;
 use log::LogManagement;
 use mail_parser::DateTime;

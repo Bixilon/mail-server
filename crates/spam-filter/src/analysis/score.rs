@@ -23,9 +23,6 @@ use crate::{
     SpamFilterContext,
 };
 
-#[cfg(feature = "enterprise")]
-use crate::analysis::llm::SpamFilterAnalyzeLlm;
-
 pub trait SpamFilterAnalyzeScore: Sync + Send {
     fn spam_filter_score(
         &self,
@@ -189,10 +186,6 @@ impl SpamFilterAnalyzeScore for Server {
 
         // HTML content analysis
         self.spam_filter_analyze_html(ctx).await;
-
-        // LLM classification
-        #[cfg(feature = "enterprise")]
-        self.spam_filter_analyze_llm(ctx).await;
 
         // Trusted reply analysis
         self.spam_filter_analyze_reply_in(ctx).await;

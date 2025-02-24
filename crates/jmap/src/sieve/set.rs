@@ -141,14 +141,6 @@ impl SieveScriptSet for Server {
                             )
                             .custom(builder);
 
-                        // Increment tenant quota
-                        #[cfg(feature = "enterprise")]
-                        if self.core.is_enterprise_edition() {
-                            if let Some(tenant) = ctx.resource_token.tenant {
-                                batch.add(DirectoryClass::UsedQuota(tenant.id), script_size as i64);
-                            }
-                        }
-
                         let document_id = self
                             .store()
                             .write_expect_id(batch)
@@ -252,17 +244,6 @@ impl SieveScriptSet for Server {
                             };
                             if update_quota != 0 {
                                 batch.add(DirectoryClass::UsedQuota(account_id), update_quota);
-
-                                // Update tenant quota
-                                #[cfg(feature = "enterprise")]
-                                if self.core.is_enterprise_edition() {
-                                    if let Some(tenant) = ctx.resource_token.tenant {
-                                        batch.add(
-                                            DirectoryClass::UsedQuota(tenant.id),
-                                            update_quota,
-                                        );
-                                    }
-                                }
                             }
 
                             // Update blobId
@@ -436,14 +417,6 @@ impl SieveScriptSet for Server {
             })
             .add(DirectoryClass::UsedQuota(account_id), updated_quota)
             .custom(ObjectIndexBuilder::new(SCHEMA).with_current(obj));
-
-        // Update tenant quota
-        #[cfg(feature = "enterprise")]
-        if self.core.is_enterprise_edition() {
-            if let Some(tenant) = resource_token.tenant {
-                batch.add(DirectoryClass::UsedQuota(tenant.id), updated_quota);
-            }
-        }
 
         self.store()
             .write(batch)

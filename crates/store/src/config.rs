@@ -38,14 +38,6 @@ use crate::backend::redis::RedisStore;
 #[cfg(feature = "azure")]
 use crate::backend::azure::AzureStore;
 
-#[cfg(feature = "enterprise")]
-enum CompositeStore {
-    #[cfg(any(feature = "postgres", feature = "mysql"))]
-    SQLReadReplica(String),
-    ShardedBlob(String),
-    ShardedInMemory(String),
-}
-
 impl Stores {
     pub async fn parse_all(config: &mut Config, is_reload: bool) -> Self {
         let mut stores = Self::parse(config).await;
@@ -61,8 +53,6 @@ impl Stores {
 
     pub async fn parse_stores(&mut self, config: &mut Config) {
         let is_reload = !self.stores.is_empty();
-        #[cfg(feature = "enterprise")]
-        let mut composite_stores = Vec::new();
         let store_ids = config
             .sub_keys("store", ".type")
             .map(|id| id.to_string())
@@ -219,19 +209,6 @@ impl Stores {
                         self.in_memory_stores.insert(store_id, db);
                     }
                 }
-                #[cfg(feature = "enterprise")]
-                "sql-read-replica" => {
-                    #[cfg(any(feature = "postgres", feature = "mysql"))]
-                    composite_stores.push(CompositeStore::SQLReadReplica(store_id));
-                }
-                #[cfg(feature = "enterprise")]
-                "distributed-blob" | "sharded-blob" => {
-                    composite_stores.push(CompositeStore::ShardedBlob(store_id));
-                }
-                #[cfg(feature = "enterprise")]
-                "sharded-in-memory" => {
-                    composite_stores.push(CompositeStore::ShardedInMemory(store_id));
-                }
                 #[cfg(feature = "azure")]
                 "azure" => {
                     if let Some(db) = AzureStore::open(config, prefix).await.map(BlobStore::from) {
@@ -244,68 +221,6 @@ impl Stores {
                         ("store", id, "type"),
                         format!("Unknown directory type: {unknown:?}"),
                     );
-                }
-            }
-        }
-
-        #[cfg(feature = "enterprise")]
-        for composite_store in composite_stores {
-            match composite_store {
-                #[cfg(any(feature = "postgres", feature = "mysql"))]
-                CompositeStore::SQLReadReplica(id) => {
-                    let prefix = ("store", id.as_str());
-                    if let Some(db) = crate::backend::composite::read_replica::SQLReadReplica::open(
-                        config,
-                        prefix,
-                        self,
-                        config.is_active_store(&id),
-                    )
-                    .await
-                    {
-                        let db = Store::SQLReadReplica(db.into());
-                        self.stores.insert(id.to_string(), db.clone());
-                        self.fts_stores.insert(id.to_string(), db.clone().into());
-                        self.blob_stores.insert(
-                            id.to_string(),
-                            BlobStore::from(db.clone()).with_compression(
-                                config
-                                    .property_or_default::<CompressionAlgo>(
-                                        ("store", id.as_str(), "compression"),
-                                        "none",
-                                    )
-                                    .unwrap_or(CompressionAlgo::None),
-                            ),
-                        );
-                        self.in_memory_stores.insert(id, db.into());
-                    }
-                }
-                CompositeStore::ShardedBlob(id) => {
-                    let prefix = ("store", id.as_str());
-                    if let Some(db) = crate::backend::composite::sharded_blob::ShardedBlob::open(
-                        config, prefix, self,
-                    ) {
-                        let store = BlobStore {
-                            backend: crate::BlobBackend::Sharded(db.into()),
-                            compression: config
-                                .property_or_default::<CompressionAlgo>(
-                                    ("store", id.as_str(), "compression"),
-                                    "none",
-                                )
-                                .unwrap_or(CompressionAlgo::None),
-                        };
-                        self.blob_stores.insert(id, store);
-                    }
-                }
-                CompositeStore::ShardedInMemory(id) => {
-                    let prefix = ("store", id.as_str());
-                    if let Some(db) =
-                        crate::backend::composite::sharded_lookup::ShardedInMemory::open(
-                            config, prefix, self,
-                        )
-                    {
-                        self.in_memory_stores
-                            .insert(id, InMemoryStore::Sharded(db.into()));
-                    }
                 }
             }
         }

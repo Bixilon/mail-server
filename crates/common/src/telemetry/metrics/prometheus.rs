@@ -16,10 +16,6 @@ impl Server {
     pub async fn export_prometheus_metrics(&self) -> trc::Result<String> {
         let mut metrics = Vec::new();
 
-        #[cfg(feature = "enterprise")]
-        let is_enterprise = self.is_enterprise_edition();
-
-        #[cfg(not(feature = "enterprise"))]
         let is_enterprise = false;
 
         // Add counters

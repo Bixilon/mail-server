@@ -281,25 +281,9 @@ impl VacationResponseSet for Server {
                     };
                     if quota != 0 {
                         batch.add(DirectoryClass::UsedQuota(account_id), quota);
-
-                        // Update tenant quota
-                        #[cfg(feature = "enterprise")]
-                        if self.core.is_enterprise_edition() {
-                            if let Some(tenant) = resource_token.tenant {
-                                batch.add(DirectoryClass::UsedQuota(tenant.id), quota);
-                            }
-                        }
                     }
                 } else {
                     batch.add(DirectoryClass::UsedQuota(account_id), script_size);
-
-                    // Update tenant quota
-                    #[cfg(feature = "enterprise")]
-                    if self.core.is_enterprise_edition() {
-                        if let Some(tenant) = resource_token.tenant {
-                            batch.add(DirectoryClass::UsedQuota(tenant.id), script_size);
-                        }
-                    }
                 }
             };
 

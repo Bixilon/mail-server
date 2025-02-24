@@ -112,12 +112,6 @@ impl TelemetrySubscriberType {
             TelemetrySubscriberType::JournalTracer(subscriber) => {
                 tracers::journald::spawn_journald_tracer(builder, subscriber)
             }
-            #[cfg(feature = "enterprise")]
-            TelemetrySubscriberType::StoreTracer(subscriber) => {
-                if is_enterprise {
-                    tracers::store::spawn_store_tracer(builder, subscriber)
-                }
-            }
         }
     }
 }

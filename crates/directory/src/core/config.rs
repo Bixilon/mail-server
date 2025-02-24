@@ -95,14 +95,6 @@ impl Directories {
 
             // Build directory
             if let Some(store) = store {
-                #[cfg(feature = "enterprise")]
-                if store.is_enterprise_directory() && !is_enterprise {
-                    let message =
-                        format!("Directory {protocol:?} is an Enterprise Edition feature");
-                    config.new_parse_error(("directory", id, "type"), message);
-                    continue;
-                }
-
                 let directory = Arc::new(Directory {
                     store,
                     cache: CachedDirectory::try_from_config(config, ("directory", id)),
