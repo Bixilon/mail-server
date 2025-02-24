@@ -11,7 +11,7 @@ use imap_proto::{ResponseCode, StatusResponse, protocol::capability::Capability}
 pub mod core;
 pub mod op;
 
-static SERVER_GREETING: &str = "Stalwart IMAP4rev2 at your service.";
+static SERVER_GREETING: &str = "Stalwart-FOSS IMAP4rev2 at your service.";
 
 pub(crate) static GREETING_WITH_TLS: LazyLock<Vec<u8>> = LazyLock::new(|| {
     StatusResponse::ok(SERVER_GREETING)
