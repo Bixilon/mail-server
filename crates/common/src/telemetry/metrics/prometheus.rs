@@ -15,7 +15,7 @@ use crate::Server;
 impl Server {
     pub async fn export_prometheus_metrics(&self) -> trc::Result<String> {
         let mut metrics = Vec::new();
-
+        
         let is_enterprise = false;
 
         // Add counters
