@@ -221,9 +221,6 @@ fn tenant_admin_permissions() -> Arc<RolePermissions> {
 
     for permission_id in 0..Permission::COUNT {
         let permission = Permission::from_id(permission_id).unwrap();
-        if permission.is_tenant_admin_permission() {
-            permissions.enabled.set(permission_id);
-        }
     }
 
     Arc::new(permissions)
