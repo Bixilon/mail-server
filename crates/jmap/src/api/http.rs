@@ -363,22 +363,6 @@ impl ParseHttp for Server {
                                 path.get(1).copied(),
                                 params.get("token"),
                             ) {
-                                // SPDX-SnippetBegin
-                                // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-                                // SPDX-License-Identifier: LicenseRef-SEL
-                                #[cfg(feature = "enterprise")]
-                                (Some("telemetry"), Some("traces"), Some(token))
-                                    if self.core.is_enterprise_edition() =>
-                                {
-                                    (GrantType::LiveTracing, token)
-                                }
-                                #[cfg(feature = "enterprise")]
-                                (Some("telemetry"), Some("metrics"), Some(token))
-                                    if self.core.is_enterprise_edition() =>
-                                {
-                                    (GrantType::LiveMetrics, token)
-                                }
-                                // SPDX-SnippetEnd
                                 (Some("troubleshoot"), _, Some(token)) => {
                                     (GrantType::Troubleshoot, token)
                                 }
@@ -388,21 +372,6 @@ impl ParseHttp for Server {
                                 self.validate_access_token(grant_type.into(), token).await?;
 
                             return match grant_type {
-                                // SPDX-SnippetBegin
-                                // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-                                // SPDX-License-Identifier: LicenseRef-SEL
-                                #[cfg(feature = "enterprise")]
-                                GrantType::LiveTracing | GrantType::LiveMetrics => {
-                                    self.handle_telemetry_api_request(
-                                        &req,
-                                        path,
-                                        &AccessToken::from_id(token_info.account_id)
-                                            .with_permission(Permission::MetricsLive)
-                                            .with_permission(Permission::TracingLive),
-                                    )
-                                    .await
-                                }
-                                // SPDX-SnippetEnd
                                 GrantType::Troubleshoot => {
                                     self.handle_troubleshoot_api_request(
                                         &req,
@@ -506,39 +475,6 @@ impl ParseHttp for Server {
                 }
                 _ => (),
             },
-            #[cfg(feature = "enterprise")]
-            "logo.svg" if self.is_enterprise_edition() => {
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                match self
-                    .logo_resource(
-                        req.headers()
-                            .get(header::HOST)
-                            .and_then(|h| h.to_str().ok())
-                            .map(|h| h.rsplit_once(':').map_or(h, |(h, _)| h))
-                            .unwrap_or_default(),
-                    )
-                    .await
-                {
-                    Ok(Some(resource)) => {
-                        return Ok(resource.into_http_response());
-                    }
-                    Ok(None) => (),
-                    Err(err) => {
-                        trc::error!(err.span_id(session.session_id));
-                    }
-                }
-
-                let resource = self.inner.data.webadmin.get("logo.svg").await?;
-
-                if !resource.is_empty() {
-                    return Ok(resource.into_http_response());
-                }
-
-                // SPDX-SnippetEnd
-            }
             "form" => {
                 if let Some(form) = &self.core.network.contact_form {
                     match *req.method() {

@@ -255,26 +255,6 @@ impl Server {
             }
         }
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        #[cfg(feature = "enterprise")]
-        if self.core.is_enterprise_edition() {
-            if let Some(tenant) = quotas.tenant.filter(|tenant| tenant.quota != 0) {
-                let used_quota = self.get_used_quota(tenant.id).await? as u64;
-
-                if used_quota + item_size > tenant.quota {
-                    return Err(trc::LimitEvent::TenantQuota
-                        .into_err()
-                        .ctx(trc::Key::Limit, tenant.quota)
-                        .ctx(trc::Key::Size, used_quota));
-                }
-            }
-        }
-
-        // SPDX-SnippetEnd
-
         Ok(())
     }
 
@@ -304,33 +284,6 @@ impl Server {
                 .add_context(|err| err.caused_by(trc::location!()).account_id(account_id))?
             {
                 quotas.quota = principal.quota();
-
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                #[cfg(feature = "enterprise")]
-                if self.core.is_enterprise_edition() {
-                    if let Some(tenant_id) = principal.tenant() {
-                        quotas.tenant = TenantInfo {
-                            id: tenant_id,
-                            quota: self
-                                .core
-                                .storage
-                                .directory
-                                .query(QueryBy::Id(tenant_id), false)
-                                .await
-                                .add_context(|err| {
-                                    err.caused_by(trc::location!()).account_id(tenant_id)
-                                })?
-                                .map(|tenant| tenant.quota())
-                                .unwrap_or_default(),
-                        }
-                        .into();
-                    }
-                }
-
-                // SPDX-SnippetEnd
             }
 
             quotas

@@ -28,7 +28,6 @@ sha2 = "0.10.6"
 
 [features]
 test_mode = []
-enterprise = []
 
 [dev-dependencies]
 tokio = { version = "1.23", features = ["full"] }

@@ -73,7 +73,6 @@ libc = "0.2.126"
 
 [features]
 test_mode = []
-enterprise = []
 foundation = []
 
 [dev-dependencies]

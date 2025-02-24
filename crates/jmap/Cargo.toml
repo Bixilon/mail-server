@@ -55,4 +55,3 @@ rsa = "0.9.2"
 
 [features]
 test_mode = []
-enterprise = []
