@@ -475,21 +475,6 @@ impl EmailDeletion for Server {
                 })
                 .await?
             {
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                // Hold blob for undeletion
-                #[cfg(feature = "enterprise")]
-                self.core.hold_undelete(
-                    &mut batch,
-                    Collection::Email.into(),
-                    &metadata.inner.blob_hash,
-                    metadata.inner.size,
-                );
-
-                // SPDX-SnippetEnd
-
                 // Delete message
                 EmailIndexBuilder::clear(metadata.inner).build(&mut batch, account_id, tenant_id);
 

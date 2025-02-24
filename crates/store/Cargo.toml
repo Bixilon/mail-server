@@ -64,7 +64,6 @@ azure = ["azure_core", "azure_storage", "azure_storage_blobs"]
 foundation = ["foundationdb", "futures"]
 fdb-chunked-bm = []
 redis = ["dep:redis", "deadpool"]
-enterprise = []
 
 test_mode = []
 

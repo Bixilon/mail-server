@@ -35,7 +35,7 @@ jemallocator = "0.5.0"
 
 [features]
 #default = ["sqlite", "postgres", "mysql", "rocks", "elastic", "s3", "redis", "azure", "enterprise"]
-default = ["rocks", "enterprise"]
+default = ["rocks"]
 sqlite = ["store/sqlite"]
 foundationdb = ["store/foundation", "common/foundation"]
 postgres = ["store/postgres"]
@@ -45,10 +45,3 @@ elastic = ["store/elastic"]
 s3 = ["store/s3"]
 redis = ["store/redis"]
 azure = ["store/azure"]
-enterprise = [ "jmap/enterprise", 
-               "smtp/enterprise", 
-               "common/enterprise", 
-               "store/enterprise", 
-               "managesieve/enterprise", 
-               "directory/enterprise", 
-               "spam-filter/enterprise" ]

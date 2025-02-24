@@ -19,20 +19,20 @@ redis = ["store/redis"]
 azure = ["store/azure"]
 
 [dev-dependencies]
-store = { path = "../crates/store", features = ["test_mode", "enterprise"] }
+store = { path = "../crates/store", features = ["test_mode"] }
 nlp = { path = "../crates/nlp" }
-directory = { path = "../crates/directory", features = ["test_mode", "enterprise"] }
-jmap = { path = "../crates/jmap", features = ["test_mode", "enterprise"] }
+directory = { path = "../crates/directory", features = ["test_mode"] }
+jmap = { path = "../crates/jmap", features = ["test_mode"] }
 jmap_proto = { path = "../crates/jmap-proto" }
 imap = { path = "../crates/imap", features = ["test_mode"] }
 imap_proto = { path = "../crates/imap-proto" }
 pop3 = { path = "../crates/pop3", features = ["test_mode"] }
-smtp = { path = "../crates/smtp", features = ["test_mode", "enterprise"] }
-common = { path = "../crates/common", features = ["test_mode", "enterprise"] }
+smtp = { path = "../crates/smtp", features = ["test_mode"] }
+common = { path = "../crates/common", features = ["test_mode"] }
 email = { path = "../crates/email", features = ["test_mode"] }
-spam-filter = { path = "../crates/spam-filter", features = ["test_mode", "enterprise"] }
+spam-filter = { path = "../crates/spam-filter", features = ["test_mode"] }
 trc = { path = "../crates/trc" }
-managesieve = { path = "../crates/managesieve", features = ["test_mode", "enterprise"] }
+managesieve = { path = "../crates/managesieve", features = ["test_mode"] }
 smtp-proto = { version = "0.1" }
 mail-send = { version = "0.5", default-features = false, features = ["cram-md5", "ring", "tls12"] }
 mail-auth = { version = "0.6", features = ["test"] }

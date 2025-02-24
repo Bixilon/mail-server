@@ -57,7 +57,6 @@ chrono = "0.4"
 
 [features]
 test_mode = []
-enterprise = []
 
 #[[bench]]
 #name = "hash"

@@ -75,40 +75,6 @@ impl Server {
         // Apply principal permissions
         let mut permissions = role_permissions.finalize();
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs Ltd <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        let mut tenant = None;
-        #[cfg(feature = "enterprise")]
-        if self.is_enterprise_edition() {
-            if let Some(tenant_id) = principal.get_int(PrincipalField::Tenant).map(|v| v as u32) {
-                // Limit tenant permissions
-                permissions.intersection(&self.get_role_permissions(tenant_id).await?.enabled);
-
-                // Obtain tenant quota
-                tenant = Some(TenantInfo {
-                    id: tenant_id,
-                    quota: self
-                        .store()
-                        .query(QueryBy::Id(tenant_id), false)
-                        .await
-                        .caused_by(trc::location!())?
-                        .ok_or_else(|| {
-                            trc::SecurityEvent::Unauthorized
-                                .into_err()
-                                .details("Tenant not found")
-                                .id(tenant_id)
-                                .caused_by(trc::location!())
-                        })?
-                        .get_int(PrincipalField::Quota)
-                        .unwrap_or_default(),
-                });
-            }
-        }
-
-        // SPDX-SnippetEnd
-
         // Build access token
         let mut access_token = AccessToken {
             primary_id: principal.id(),
