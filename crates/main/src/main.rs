@@ -40,10 +40,6 @@ async fn main() -> std::io::Result<()> {
     {
         let server = init.inner.build_server();
 
-        // Log licensing information
-        #[cfg(feature = "enterprise")]
-        server.log_license_details();
-
         // Migrate directory
         if let Err(err) = server.store().migrate_directory().await {
             trc::error!(err.details("Directory migration failed"));

@@ -52,8 +52,6 @@ pub mod auth;
 pub mod config;
 pub mod core;
 pub mod dns;
-#[cfg(feature = "enterprise")]
-pub mod enterprise;
 pub mod expr;
 pub mod ipc;
 pub mod listener;
@@ -249,8 +247,6 @@ pub struct Core {
     pub spam: SpamFilterConfig,
     pub imap: ImapConfig,
     pub metrics: Metrics,
-    #[cfg(feature = "enterprise")]
-    pub enterprise: Option<enterprise::Enterprise>,
 }
 
 impl CacheItemWeight for AccountId {

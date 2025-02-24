@@ -36,8 +36,6 @@ use store::dispatch::lookup::KeyValue;
 use trc::SecurityEvent;
 use utils::url_params::UrlParams;
 
-#[cfg(feature = "enterprise")]
-use crate::api::management::enterprise::telemetry::TelemetryApi;
 
 use crate::{
     auth::{

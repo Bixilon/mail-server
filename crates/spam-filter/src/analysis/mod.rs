@@ -26,8 +26,6 @@ pub mod headers;
 pub mod html;
 pub mod init;
 pub mod ip;
-#[cfg(feature = "enterprise")]
-pub mod llm;
 pub mod messageid;
 pub mod mime;
 pub mod pyzor;

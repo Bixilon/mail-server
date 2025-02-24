@@ -380,9 +380,6 @@ impl BootManager {
                 let cache = Caches::parse(&mut config);
 
                 // Enable telemetry
-                #[cfg(feature = "enterprise")]
-                telemetry.enable(core.is_enterprise_edition());
-                #[cfg(not(feature = "enterprise"))]
                 telemetry.enable(false);
 
                 trc::event!(

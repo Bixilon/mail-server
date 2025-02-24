@@ -98,7 +98,6 @@ impl Deserialize for Principal {
     }
 }
 
-#[cfg(not(feature = "enterprise"))]
 impl PrincipalInfo {
     pub fn has_tenant_access(&self, _tenant_id: Option<u32>) -> bool {
         true

@@ -30,8 +30,6 @@ impl BlobStore {
                 Store::MySQL(store) => store.get_blob(key, read_range).await,
                 #[cfg(feature = "rocks")]
                 Store::RocksDb(store) => store.get_blob(key, read_range).await,
-                #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-                Store::SQLReadReplica(store) => store.get_blob(key, read_range).await,
                 Store::None => Err(trc::StoreEvent::NotConfigured.into()),
             },
             BlobBackend::Fs(store) => store.get_blob(key, read_range).await,
@@ -39,8 +37,6 @@ impl BlobStore {
             BlobBackend::S3(store) => store.get_blob(key, read_range).await,
             #[cfg(feature = "azure")]
             BlobBackend::Azure(store) => store.get_blob(key, read_range).await,
-            #[cfg(feature = "enterprise")]
-            BlobBackend::Sharded(store) => store.get_blob(key, read_range).await,
         };
 
         trc::event!(
@@ -112,8 +108,6 @@ impl BlobStore {
                 Store::MySQL(store) => store.put_blob(key, data.as_ref()).await,
                 #[cfg(feature = "rocks")]
                 Store::RocksDb(store) => store.put_blob(key, data.as_ref()).await,
-                #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-                Store::SQLReadReplica(store) => store.put_blob(key, data.as_ref()).await,
                 Store::None => Err(trc::StoreEvent::NotConfigured.into()),
             },
             BlobBackend::Fs(store) => store.put_blob(key, data.as_ref()).await,
@@ -121,8 +115,6 @@ impl BlobStore {
             BlobBackend::S3(store) => store.put_blob(key, data.as_ref()).await,
             #[cfg(feature = "azure")]
             BlobBackend::Azure(store) => store.put_blob(key, data.as_ref()).await,
-            #[cfg(feature = "enterprise")]
-            BlobBackend::Sharded(store) => store.put_blob(key, data.as_ref()).await,
         }
         .caused_by(trc::location!());
 
@@ -150,8 +142,6 @@ impl BlobStore {
                 Store::MySQL(store) => store.delete_blob(key).await,
                 #[cfg(feature = "rocks")]
                 Store::RocksDb(store) => store.delete_blob(key).await,
-                #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-                Store::SQLReadReplica(store) => store.delete_blob(key).await,
                 Store::None => Err(trc::StoreEvent::NotConfigured.into()),
             },
             BlobBackend::Fs(store) => store.delete_blob(key).await,
@@ -159,8 +149,6 @@ impl BlobStore {
             BlobBackend::S3(store) => store.delete_blob(key).await,
             #[cfg(feature = "azure")]
             BlobBackend::Azure(store) => store.delete_blob(key).await,
-            #[cfg(feature = "enterprise")]
-            BlobBackend::Sharded(store) => store.delete_blob(key).await,
         }
         .caused_by(trc::location!());
 

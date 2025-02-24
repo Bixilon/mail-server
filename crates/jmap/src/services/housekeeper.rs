@@ -18,12 +18,6 @@ use common::{
     Inner, Server, KV_LOCK_HOUSEKEEPER,
 };
 
-#[cfg(feature = "enterprise")]
-use common::telemetry::{
-    metrics::store::{MetricsStore, SharedMetricHistory},
-    tracers::store::TracingStore,
-};
-
 use smtp::reporting::SmtpReporting;
 use store::{write::now, PurgeStore};
 use tokio::sync::mpsc;
@@ -43,22 +37,13 @@ enum ActionClass {
     Store(usize),
     Acme(String),
     OtelMetrics,
-    #[cfg(feature = "enterprise")]
-    InternalMetrics,
     CalculateMetrics,
-    #[cfg(feature = "enterprise")]
-    AlertMetrics,
-    #[cfg(feature = "enterprise")]
-    RenewLicense,
 }
 
 #[derive(Default)]
 struct Queue {
     heap: BinaryHeap<Action>,
 }
-
-#[cfg(feature = "enterprise")]
-const METRIC_ALERTS_INTERVAL: Duration = Duration::from_secs(5 * 60);
 
 pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEvent>) {
     tokio::spawn(async move {
@@ -120,8 +105,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
         }
 
         // Metrics history
-        #[cfg(feature = "enterprise")]
-        let metrics_history = SharedMetricHistory::default();
         let mut next_metric_update = Instant::now();
 
         loop {
@@ -313,10 +296,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
 
                                     let otel = otel.clone();
 
-                                    #[cfg(feature = "enterprise")]
-                                    let is_enterprise = server.is_enterprise_edition();
-
-                                    #[cfg(not(feature = "enterprise"))]
                                     let is_enterprise = false;
 
                                     tokio::spawn(async move {
@@ -347,23 +326,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
                                 let server = server.clone();
                                 tokio::spawn(async move {
                                     if server.core.network.roles.calculate_metrics {
-                                        #[cfg(feature = "enterprise")]
-                                        if server.is_enterprise_edition() {
-                                            // Obtain queue size
-                                            match server.total_queued_messages().await {
-                                                Ok(total) => {
-                                                    Collector::update_gauge(
-                                                        MetricType::QueueCount,
-                                                        total,
-                                                    );
-                                                }
-                                                Err(err) => {
-                                                    trc::error!(
-                                                        err.details("Failed to obtain queue size")
-                                                    );
-                                                }
-                                            }
-                                        }
 
                                         if update_other_metrics {
                                             match server.total_accounts().await {

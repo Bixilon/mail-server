@@ -125,10 +125,7 @@ impl OAuthApiHandler for Server {
                     )
                     .await?;
 
-                #[cfg(not(feature = "enterprise"))]
                 let is_enterprise = false;
-                #[cfg(feature = "enterprise")]
-                let is_enterprise = self.core.is_enterprise_edition();
 
                 json!({
                     "data": {
