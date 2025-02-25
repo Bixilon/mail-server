@@ -1,0 +1,9 @@
+stages:
+  - package
+
+variables:
+  IMAGE_BRANCH: bixnet
+
+include:
+  - project: bixnet/cools
+    file: package-only.yml
