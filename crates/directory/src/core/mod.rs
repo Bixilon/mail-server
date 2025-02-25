@@ -203,32 +203,3 @@ impl Permission {
         }
     }
 }
-
-#[cfg(test)]
-mod test {
-    use crate::Permission;
-
-    #[test]
-    #[ignore]
-    fn print_permissions() {
-        const CHECK: &str = ":white_check_mark:";
-
-        for permission in Permission::all() {
-            println!(
-                "|`{}`|{}|{}|{}|{}|",
-                permission.name(),
-                permission.description(),
-                CHECK,
-                permission
-                    .is_tenant_admin_permission()
-                    .then_some(CHECK)
-                    .unwrap_or_default(),
-                permission
-                    .is_user_permission()
-                    .then_some(CHECK)
-                    .unwrap_or_default()
-            );
-            //println!("({:?},{:?}),", permission.name(), permission.description(),);
-        }
-    }
-}
