@@ -1,0 +1,6 @@
+stages:
+  - package
+
+include:
+  - project: bixnet/cools
+    file: package-only.yml
