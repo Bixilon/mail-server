@@ -7,7 +7,6 @@
 pub mod imap;
 pub mod internal;
 pub mod ldap;
-pub mod oidc;
 pub mod smtp;
 pub mod sql;
 
