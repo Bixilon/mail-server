@@ -24,7 +24,7 @@ pub mod webadmin;
 const DEFAULT_SPAMFILTER_URL: &str =
     "https://github.com/stalwartlabs/spam-filter/releases/latest/download/spam-filter.toml";
 const DEFAULT_WEBADMIN_URL: &str =
-    "https://github.com/stalwartlabs/webadmin/releases/latest/download/webadmin.zip";
+    "https://github.com/Bixilon/stalwart-webadmin/releases/latest/download/webadmin.zip";
 pub const WEBADMIN_KEY: &[u8] = "STALWART_WEBADMIN".as_bytes();
 
 impl ConfigManager {
