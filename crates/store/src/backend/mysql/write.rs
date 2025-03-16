@@ -318,15 +318,7 @@ impl MysqlStore {
             }
         }
 
-        match trx.commit().await {
-            Ok(_) => {
-                Ok(result)
-            },
-            Err(e) => {
-                conn.query_drop("ROLLBACK;").await?;
-                Err(e.into())
-            }
-        }
+        trx.commit().await.map(|_| result).map_err(Into::into)
     }
 
     pub(crate) async fn purge_store(&self) -> trc::Result<()> {

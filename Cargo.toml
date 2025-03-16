@@ -63,3 +63,6 @@ incremental = false
 debug-assertions = false
 overflow-checks = false
 rpath = false
+
+[patch.crates-io]
+mysql_async = { git = "https://github.com/Bixilon/mysql_async.git", branch = "explict-rollback-on-commit-error" }
