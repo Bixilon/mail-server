@@ -38,8 +38,6 @@ impl MysqlStore {
                 Err(err) => err,
             };
 
-            let _ = conn.query_drop("ROLLBACK;").await;
-
             match err {
                 CommitError::Mysql(Error::Server(err))
                     if [1062, 1213].contains(&err.code)
