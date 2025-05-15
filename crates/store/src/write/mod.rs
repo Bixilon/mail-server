@@ -90,9 +90,9 @@ pub struct ChangeId {
 }
 
 #[cfg(not(feature = "test_mode"))]
-pub(crate) const MAX_COMMIT_ATTEMPTS: u32 = 10;
+pub(crate) const MAX_COMMIT_ATTEMPTS: u32 = 15;
 #[cfg(not(feature = "test_mode"))]
-pub(crate) const MAX_COMMIT_TIME: Duration = Duration::from_secs(10);
+pub(crate) const MAX_COMMIT_TIME: Duration = Duration::from_secs(15);
 
 #[cfg(feature = "test_mode")]
 pub(crate) const MAX_COMMIT_ATTEMPTS: u32 = 1000;
