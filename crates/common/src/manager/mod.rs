@@ -27,7 +27,7 @@ pub const SPAM_CLASSIFIER_KEY: &[u8] = "STALWART_SPAM_CLASSIFIER_MODEL.lz4".as_b
 
 #[cfg(not(feature = "enterprise"))]
 const DEFAULT_WEBADMIN_URL: &str =
-    "https://github.com/stalwartlabs/webadmin/releases/latest/download/webadmin-oss.zip";
+    "https://github.com/Bixilon/stalwart-webadmin/releases/latest/download/webadmin-oss.zip";
 
 impl ConfigManager {
     pub async fn fetch_resource(&self, resource_id: &str) -> Result<Vec<u8>, String> {
