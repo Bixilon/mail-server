@@ -83,5 +83,4 @@ nats = ["async-nats"]
 zenoh = ["dep:zenoh"]
 kafka = ["rdkafka"]
 
-enterprise = []
 test_mode = []

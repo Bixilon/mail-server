@@ -693,7 +693,6 @@ impl Store {
     }
 
 
-    #[cfg(not(feature = "enterprise"))]
     pub fn is_enterprise_store(&self) -> bool {
         false
     }

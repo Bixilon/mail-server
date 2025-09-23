@@ -429,8 +429,7 @@ impl BootManager {
                 // Enable telemetry
 
 
-                #[cfg(not(feature = "enterprise"))]
-                telemetry.enable(false);
+                        telemetry.enable(false);
 
                 trc::event!(
                     Server(trc::ServerEvent::Startup),

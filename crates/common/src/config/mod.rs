@@ -70,7 +70,6 @@ impl Core {
             })
             .unwrap_or_default();
 
-        #[cfg(not(feature = "enterprise"))]
         let is_enterprise = false;
 
 

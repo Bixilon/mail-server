@@ -23,7 +23,6 @@ chrono = "0.4.40"
 
 [features]
 test_mode = []
-enterprise = []
 
 [dev-dependencies]
 tokio = { version = "1.47", features = ["full"] }

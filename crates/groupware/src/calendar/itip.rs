@@ -553,7 +553,6 @@ enum Response {
 
 fn render_response(server: &Server, response: Response, language: &str) -> String {
 
-    #[cfg(not(feature = "enterprise"))]
     let template = &server.core.groupware.itip_template;
     let locale = i18n::locale_or_default(language);
 

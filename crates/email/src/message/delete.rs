@@ -19,8 +19,6 @@ use store::{
 };
 use store::{IndexKey, IterateParams, SerializeInfallible, U32_LEN};
 use trc::AddContext;
-#[cfg(feature = "enterprise")]
-use types::blob_hash::BlobHash;
 use types::collection::{Collection, VanishedCollection};
 use types::field::EmailField;
 

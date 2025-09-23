@@ -22,4 +22,3 @@ chrono = { version = "0.4.40", features = ["serde"] }
 
 [features]
 test_mode = ["chrono"]
-enterprise = []

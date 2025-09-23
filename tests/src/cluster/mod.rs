@@ -35,7 +35,6 @@ use crate::{
     AssertConfig, TEST_USERS, add_test_certs,
     directory::internal::TestInternalDirectory,
     imap::{ImapConnection, Type},
-    jmap::enterprise::EnterpriseCore,
 };
 
 pub mod broadcast;
@@ -184,8 +183,7 @@ async fn build_server(mut config: Config, stores: Stores) -> (Server, watch::Sen
     };
     let tracers = Telemetry::parse(&mut config, &stores);
     let core = Core::parse(&mut config, stores, config_manager)
-        .await
-        .enable_enterprise();
+        .await;
     let data = Data::parse(&mut config);
     let cache = Caches::parse(&mut config);
     let (ipc, mut ipc_rxs) = build_ipc(true);

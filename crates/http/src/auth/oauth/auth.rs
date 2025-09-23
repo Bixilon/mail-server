@@ -128,8 +128,7 @@ impl OAuthApiHandler for Server {
                     )
                     .await?;
 
-                #[cfg(not(feature = "enterprise"))]
-                let is_enterprise = false;
+                        let is_enterprise = false;
 
 
                 json!({

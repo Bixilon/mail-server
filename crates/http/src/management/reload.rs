@@ -84,8 +84,7 @@ impl ManageReload for Server {
                     if let Some(tracers) = result.tracers {
                         // Update tracers
 
-                        #[cfg(not(feature = "enterprise"))]
-                        tracers.update(false);
+                                        tracers.update(false);
                     }
 
                     // Reload settings

@@ -25,7 +25,6 @@ use common::{
     },
 };
 use email::message::delete::EmailDeletion;
-use enterprise::{EnterpriseCore, insert_test_metrics};
 use http::HttpSessionManager;
 use hyper::{Method, header::AUTHORIZATION};
 use imap::core::ImapSessionManager;
@@ -63,7 +62,6 @@ pub mod email_query_changes;
 pub mod email_search_snippet;
 pub mod email_set;
 pub mod email_submission;
-pub mod enterprise;
 pub mod event_source;
 pub mod mailbox;
 pub mod permissions;
@@ -114,7 +112,6 @@ async fn jmap_tests() {
     blob::test(&mut params).await;*/
     permissions::test(&params).await;
     purge::test(&mut params).await;
-    enterprise::test(&mut params).await;
 
     if delete {
         params.temp_dir.delete();
@@ -296,8 +293,7 @@ async fn init_jmap_tests(store_id: &str, delete_if_exists: bool) -> JMAPTest {
     };
     let tracers = Telemetry::parse(&mut config, &stores);
     let core = Core::parse(&mut config, stores, config_manager)
-        .await
-        .enable_enterprise();
+        .await;
     let data = Data::parse(&mut config);
     let cache = Caches::parse(&mut config);
     let store = core.storage.data.clone();

@@ -2359,9 +2359,6 @@ pub fn unsupported(details: impl Into<trc::Value>) -> trc::Error {
     trc::ManageEvent::NotSupported.ctx(trc::Key::Details, details)
 }
 
-pub fn enterprise() -> trc::Error {
-    trc::ManageEvent::NotSupported.ctx(trc::Key::Details, "Enterprise feature")
-}
 
 pub fn error(details: impl Into<trc::Value>, reason: Option<impl Into<trc::Value>>) -> trc::Error {
     trc::ManageEvent::Error

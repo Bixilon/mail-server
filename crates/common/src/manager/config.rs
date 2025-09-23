@@ -536,7 +536,6 @@ impl Patterns {
                 Pattern::Include(MatchType::Equal("storage.lookup".to_string())),
                 Pattern::Include(MatchType::Equal("storage.fts".to_string())),
                 Pattern::Include(MatchType::Equal("storage.directory".to_string())),
-                Pattern::Include(MatchType::Equal("enterprise.license-key".to_string())),
             ];
         } else if !cfg_local_patterns.contains(&Pattern::Include(MatchType::StartsWith(
             "config.local-keys.".to_string(),

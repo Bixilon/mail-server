@@ -10,13 +10,6 @@ use common::{
     Core,
     auth::AccessToken,
     config::spamfilter::SpamFilterAction,
-    enterprise::{
-        SpamFilterLlmConfig,
-        llm::{
-            AiApiConfig, ChatCompletionChoice, ChatCompletionRequest, ChatCompletionResponse,
-            Message,
-        },
-    },
 };
 
 use compact_str::{CompactString, ToCompactString};
@@ -49,7 +42,6 @@ use utils::config::Config;
 
 use crate::{
     http_server::{HttpMessage, spawn_mock_http_server},
-    jmap::enterprise::EnterpriseCore,
     smtp::{DnsCache, TempDir, TestSMTP, session::TestSession},
 };
 
@@ -207,14 +199,11 @@ async fn antispam() {
     config.resolve_all_macros().await;
     let stores = Stores::parse_all(&mut config, false).await;
     let mut core = Core::parse(&mut config, stores, Default::default())
-        .await
-        .enable_enterprise();
+        .await;
     let ai_apis = AHashMap::from_iter([(
         "dummy".to_string(),
         AiApiConfig::parse(&mut config, "dummy").unwrap().into(),
     )]);
-    core.enterprise.as_mut().unwrap().spam_filter_llm =
-        SpamFilterLlmConfig::parse(&mut config, &ai_apis);
     crate::AssertConfig::assert_no_errors(config);
     let server = TestSMTP::from_core(core).server;
 

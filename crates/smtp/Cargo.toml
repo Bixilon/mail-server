@@ -58,7 +58,6 @@ compact_str = "0.9.0"
 
 [features]
 test_mode = []
-enterprise = []
 
 #[[bench]]
 #name = "hash"

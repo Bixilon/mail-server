@@ -72,7 +72,6 @@ impl Principal {
     }
 
 
-    #[cfg(not(feature = "enterprise"))]
     pub fn tenant(&self) -> Option<u32> {
         None
     }
@@ -388,7 +387,6 @@ impl PrincipalSet {
     }
 
 
-    #[cfg(not(feature = "enterprise"))]
     pub fn tenant(&self) -> Option<u32> {
         None
     }
@@ -1451,7 +1449,6 @@ impl Permission {
         )
     }
 
-    #[cfg(not(feature = "enterprise"))]
     pub const fn is_tenant_admin_permission(&self) -> bool {
         false
     }

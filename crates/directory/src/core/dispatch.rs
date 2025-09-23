@@ -130,9 +130,3 @@ impl Directory {
         }
     }
 }
-
-impl DirectoryInner {
-    pub fn is_enterprise_directory(&self) -> bool {
-        false
-    }
-}

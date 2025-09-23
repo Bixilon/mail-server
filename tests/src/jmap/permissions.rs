@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: AGPL-3.0-only OR LicenseRef-SEL
  */
 
-use super::{JMAPTest, ManagementApi, enterprise::List};
+use super::{JMAPTest, ManagementApi};
 use crate::jmap::assert_is_empty;
 use ahash::AHashSet;
 use common::auth::{AccessToken, TenantInfo};

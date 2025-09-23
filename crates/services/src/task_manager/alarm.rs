@@ -432,7 +432,6 @@ async fn build_template(
     };
 
 
-    #[cfg(not(feature = "enterprise"))]
     let template = &server.core.groupware.alarms_template;
     let locale = i18n::locale_or_default(access_token.locale.as_deref().unwrap_or("en"));
     let chrono_locale = access_token

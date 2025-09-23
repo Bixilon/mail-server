@@ -31,7 +31,6 @@ base64 = "0.22"
 
 [features]
 test_mode = []
-enterprise = []
 
 [dev-dependencies]
 tokio = { version = "1.47", features = ["full"] }

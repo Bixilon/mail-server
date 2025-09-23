@@ -17,8 +17,7 @@ impl Server {
         let mut metrics = Vec::new();
 
 
-        #[cfg(not(feature = "enterprise"))]
-        let is_enterprise = false;
+        let is_enterprise = true;
 
         // Add counters
         for counter in Collector::collect_counters(is_enterprise) {

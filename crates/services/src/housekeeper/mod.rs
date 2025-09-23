@@ -312,8 +312,7 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
                                     let otel = otel.clone();
 
 
-                                    #[cfg(not(feature = "enterprise"))]
-                                    let is_enterprise = false;
+                                    let is_enterprise = true;
 
                                     tokio::spawn(async move {
                                         otel.push_metrics(is_enterprise, start_time).await;

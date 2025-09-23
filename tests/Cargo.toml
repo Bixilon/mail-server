@@ -20,10 +20,10 @@ nats = ["store/nats"]
 azure = ["store/azure"]
 
 [dev-dependencies]
-store = { path = "../crates/store", features = ["test_mode", "enterprise"] }
+store = { path = "../crates/store", features = ["test_mode", ] }
 nlp = { path = "../crates/nlp" }
-directory = { path = "../crates/directory", features = ["test_mode", "enterprise"] }
-jmap = { path = "../crates/jmap", features = ["test_mode", "enterprise"] }
+directory = { path = "../crates/directory", features = ["test_mode"] }
+jmap = { path = "../crates/jmap", features = ["test_mode"] }
 jmap_proto = { path = "../crates/jmap-proto" }
 imap = { path = "../crates/imap", features = ["test_mode"] }
 imap_proto = { path = "../crates/imap-proto" }
@@ -32,17 +32,17 @@ dav = { path = "../crates/dav", features = ["test_mode"] }
 dav-proto = { path = "../crates/dav-proto", features = ["test_mode"] }
 calcard = { version = "0.1.3", features = ["rkyv"] }
 groupware = { path = "../crates/groupware", features = ["test_mode"] }
-http = { path = "../crates/http", features = ["test_mode", "enterprise"] }
+http = { path = "../crates/http", features = ["test_mode"] }
 http_proto = { path = "../crates/http-proto" }
-services = { path = "../crates/services", features = ["test_mode", "enterprise"] }
+services = { path = "../crates/services", features = ["test_mode"] }
 pop3 = { path = "../crates/pop3", features = ["test_mode"] }
-smtp = { path = "../crates/smtp", features = ["test_mode", "enterprise"] }
-common = { path = "../crates/common", features = ["test_mode", "enterprise"] }
-email = { path = "../crates/email", features = ["test_mode", "enterprise"] }
-spam-filter = { path = "../crates/spam-filter", features = ["test_mode", "enterprise"] }
-migration = { path = "../crates/migration", features = ["test_mode", "enterprise"] }
-trc = { path = "../crates/trc", features = ["enterprise"] }
-managesieve = { path = "../crates/managesieve", features = ["test_mode", "enterprise"] }
+smtp = { path = "../crates/smtp", features = ["test_mode"] }
+common = { path = "../crates/common", features = ["test_mode"] }
+email = { path = "../crates/email", features = ["test_mode"] }
+spam-filter = { path = "../crates/spam-filter", features = ["test_mode"] }
+migration = { path = "../crates/migration", features = ["test_mode"] }
+trc = { path = "../crates/trc" }
+managesieve = { path = "../crates/managesieve", features = ["test_mode"] }
 smtp-proto = { version = "0.2" }
 mail-send = { version = "0.5", default-features = false, features = ["cram-md5", "ring", "tls12"] }
 mail-auth = { version = "0.7.1", features = ["test"] }

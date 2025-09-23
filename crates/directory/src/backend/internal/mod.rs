@@ -22,7 +22,6 @@ pub struct PrincipalInfo {
 
 impl PrincipalInfo {
 
-    #[cfg(not(feature = "enterprise"))]
     pub fn has_tenant_access(&self, _tenant_id: Option<u32>) -> bool {
         true
     }

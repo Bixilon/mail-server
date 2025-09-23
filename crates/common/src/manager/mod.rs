@@ -23,7 +23,6 @@ const DEFAULT_SPAMFILTER_URL: &str =
 pub const WEBADMIN_KEY: &[u8] = "STALWART_WEBADMIN".as_bytes();
 
 
-#[cfg(not(feature = "enterprise"))]
 const DEFAULT_WEBADMIN_URL: &str =
     "https://github.com/stalwartlabs/webadmin/releases/latest/download/webadmin-oss.zip";
 

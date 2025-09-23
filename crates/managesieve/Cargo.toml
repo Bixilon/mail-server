@@ -30,4 +30,3 @@ rkyv = { version = "0.8.10", features = ["little_endian"] }
 
 [features]
 test_mode = []
-enterprise = []
