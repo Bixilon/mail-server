@@ -22,15 +22,6 @@ use store::{PurgeStore, write::now};
 use tokio::sync::mpsc;
 use trc::{Collector, MetricType, PurgeEvent};
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[cfg(feature = "enterprise")]
-use common::telemetry::{
-    metrics::store::{MetricsStore, SharedMetricHistory},
-    tracers::store::TracingStore,
-};
-// SPDX-SnippetEnd
 
 #[derive(PartialEq, Eq)]
 struct Action {
@@ -45,16 +36,6 @@ enum ActionClass {
     Acme(String),
     OtelMetrics,
     CalculateMetrics,
-    // SPDX-SnippetBegin
-    // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-    // SPDX-License-Identifier: LicenseRef-SEL
-    #[cfg(feature = "enterprise")]
-    InternalMetrics,
-    #[cfg(feature = "enterprise")]
-    AlertMetrics,
-    #[cfg(feature = "enterprise")]
-    RenewLicense,
-    // SPDX-SnippetEnd
 }
 
 #[derive(Default)]
@@ -62,12 +43,6 @@ struct Queue {
     heap: BinaryHeap<Action>,
 }
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[cfg(feature = "enterprise")]
-const METRIC_ALERTS_INTERVAL: Duration = Duration::from_secs(5 * 60);
-// SPDX-SnippetEnd
 
 pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEvent>) {
     tokio::spawn(async move {
@@ -127,43 +102,8 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
                 }
             }
 
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-
-            // Enterprise Edition license management
-            #[cfg(feature = "enterprise")]
-            if let Some(enterprise) = &server.core.enterprise {
-                queue.schedule(
-                    Instant::now() + enterprise.license.renew_in(),
-                    ActionClass::RenewLicense,
-                );
-
-                if let Some(metrics_store) = enterprise.metrics_store.as_ref() {
-                    queue.schedule(
-                        Instant::now() + metrics_store.interval.time_to_next(),
-                        ActionClass::InternalMetrics,
-                    );
-                }
-
-                if !enterprise.metrics_alerts.is_empty() {
-                    queue.schedule(
-                        Instant::now() + METRIC_ALERTS_INTERVAL,
-                        ActionClass::AlertMetrics,
-                    );
-                }
-            }
-
-            // SPDX-SnippetEnd
         }
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-        // Metrics history
-        #[cfg(feature = "enterprise")]
-        let metrics_history = SharedMetricHistory::default();
-        // SPDX-SnippetEnd
 
         let mut next_metric_update = Instant::now();
 
@@ -187,34 +127,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
                                 _ => {}
                             }
 
-                            // SPDX-SnippetBegin
-                            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                            // SPDX-License-Identifier: LicenseRef-SEL
-                            #[cfg(feature = "enterprise")]
-                            if let Some(enterprise) = &server.core.enterprise {
-                                if !queue.has_action(&ActionClass::RenewLicense) {
-                                    queue.schedule(
-                                        Instant::now() + enterprise.license.renew_in(),
-                                        ActionClass::RenewLicense,
-                                    );
-                                }
-
-                                if let Some(metrics_store) = enterprise.metrics_store.as_ref()
-                                    && !queue.has_action(&ActionClass::InternalMetrics)
-                                {
-                                    queue.schedule(
-                                        Instant::now() + metrics_store.interval.time_to_next(),
-                                        ActionClass::InternalMetrics,
-                                    );
-                                }
-
-                                if !enterprise.metrics_alerts.is_empty()
-                                    && !queue.has_action(&ActionClass::AlertMetrics)
-                                {
-                                    queue.schedule(Instant::now(), ActionClass::AlertMetrics);
-                                }
-                            }
-                            // SPDX-SnippetEnd
 
                             // Reload queue settings
                             server
@@ -399,12 +311,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
 
                                     let otel = otel.clone();
 
-                                    // SPDX-SnippetBegin
-                                    // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                                    // SPDX-License-Identifier: LicenseRef-SEL
-                                    #[cfg(feature = "enterprise")]
-                                    let is_enterprise = server.is_enterprise_edition();
-                                    // SPDX-SnippetEnd
 
                                     #[cfg(not(feature = "enterprise"))]
                                     let is_enterprise = false;
@@ -437,27 +343,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
                                 let server = server.clone();
                                 tokio::spawn(async move {
                                     if server.core.network.roles.calculate_metrics {
-                                        // SPDX-SnippetBegin
-                                        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                                        // SPDX-License-Identifier: LicenseRef-SEL
-                                        #[cfg(feature = "enterprise")]
-                                        if server.is_enterprise_edition() {
-                                            // Obtain queue size
-                                            match server.total_queued_messages().await {
-                                                Ok(total) => {
-                                                    Collector::update_gauge(
-                                                        MetricType::QueueCount,
-                                                        total,
-                                                    );
-                                                }
-                                                Err(err) => {
-                                                    trc::error!(
-                                                        err.details("Failed to obtain queue size")
-                                                    );
-                                                }
-                                            }
-                                        }
-                                        // SPDX-SnippetEnd
 
                                         if update_other_metrics {
                                             match server.total_accounts().await {
@@ -518,112 +403,6 @@ pub fn spawn_housekeeper(inner: Arc<Inner>, mut rx: mpsc::Receiver<HousekeeperEv
                                 });
                             }
 
-                            // SPDX-SnippetBegin
-                            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                            // SPDX-License-Identifier: LicenseRef-SEL
-                            #[cfg(feature = "enterprise")]
-                            ActionClass::InternalMetrics => {
-                                if let Some(metrics_store) = &server
-                                    .core
-                                    .enterprise
-                                    .as_ref()
-                                    .and_then(|e| e.metrics_store.as_ref())
-                                {
-                                    trc::event!(
-                                        Housekeeper(trc::HousekeeperEvent::Run),
-                                        Type = "metrics_internal"
-                                    );
-
-                                    queue.schedule(
-                                        Instant::now() + metrics_store.interval.time_to_next(),
-                                        ActionClass::InternalMetrics,
-                                    );
-
-                                    let metrics_store = metrics_store.store.clone();
-                                    let metrics_history = metrics_history.clone();
-                                    let core = server.core.clone();
-                                    tokio::spawn(async move {
-                                        if let Err(err) = metrics_store
-                                            .write_metrics(core, now(), metrics_history)
-                                            .await
-                                        {
-                                            trc::error!(err.details("Failed to write metrics"));
-                                        }
-                                    });
-                                }
-                            }
-
-                            #[cfg(feature = "enterprise")]
-                            ActionClass::AlertMetrics => {
-                                trc::event!(
-                                    Housekeeper(trc::HousekeeperEvent::Run),
-                                    Type = "metrics_alert"
-                                );
-
-                                let server = server.clone();
-
-                                tokio::spawn(async move {
-                                    if let Some(messages) = server.process_alerts().await {
-                                        for message in messages {
-                                            server
-                                                .send_autogenerated(
-                                                    message.from,
-                                                    message.to.into_iter(),
-                                                    message.body,
-                                                    None,
-                                                    0,
-                                                )
-                                                .await;
-                                        }
-                                    }
-                                });
-                            }
-
-                            #[cfg(feature = "enterprise")]
-                            ActionClass::RenewLicense => {
-                                trc::event!(
-                                    Housekeeper(trc::HousekeeperEvent::Run),
-                                    Type = "renew_license"
-                                );
-
-                                match server.reload().await {
-                                    Ok(result) => {
-                                        if let Some(new_core) = result.new_core {
-                                            if let Some(enterprise) = &new_core.enterprise {
-                                                let renew_in =
-                                                    if enterprise.license.is_near_expiration() {
-                                                        // Something went wrong during renewal, try again in 1 day or 1 hour,
-                                                        // depending on the time left on the license
-                                                        if enterprise.license.expires_in()
-                                                            < Duration::from_secs(86400)
-                                                        {
-                                                            Duration::from_secs(3600)
-                                                        } else {
-                                                            Duration::from_secs(86400)
-                                                        }
-                                                    } else {
-                                                        enterprise.license.renew_in()
-                                                    };
-
-                                                queue.schedule(
-                                                    Instant::now() + renew_in,
-                                                    ActionClass::RenewLicense,
-                                                );
-                                            }
-
-                                            // Update core
-                                            server.inner.shared_core.store(new_core.into());
-
-                                            server
-                                                .cluster_broadcast(BroadcastEvent::ReloadSettings)
-                                                .await;
-                                        }
-                                    }
-                                    Err(err) => {
-                                        trc::error!(err.details("Failed to reload configuration."));
-                                    }
-                                }
-                            } // SPDX-SnippetEnd
                         }
                     }
                 }
@@ -692,46 +471,11 @@ impl Purge for Server {
 
         match purge {
             PurgeType::Data(store) => {
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                let trace_retention = self
-                    .core
-                    .enterprise
-                    .as_ref()
-                    .and_then(|e| e.trace_store.as_ref())
-                    .and_then(|t| t.retention);
-                #[cfg(feature = "enterprise")]
-                let metrics_retention = self
-                    .core
-                    .enterprise
-                    .as_ref()
-                    .and_then(|e| e.metrics_store.as_ref())
-                    .and_then(|m| m.retention);
-                // SPDX-SnippetEnd
 
                 if let Err(err) = store.purge_store().await {
                     trc::error!(err.details("Failed to purge data store"));
                 }
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                if let Some(trace_retention) = trace_retention
-                    && let Err(err) = store.purge_spans(trace_retention).await
-                {
-                    trc::error!(err.details("Failed to purge tracing spans"));
-                }
-
-                #[cfg(feature = "enterprise")]
-                if let Some(metrics_retention) = metrics_retention
-                    && let Err(err) = store.purge_metrics(metrics_retention).await
-                {
-                    trc::error!(err.details("Failed to purge metrics"));
-                }
-                // SPDX-SnippetEnd
             }
             PurgeType::Blobs { store, blob_store } => {
                 if let Err(err) = store.purge_blobs(blob_store).await {

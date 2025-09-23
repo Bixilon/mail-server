@@ -17,15 +17,6 @@ pub mod spam;
 pub mod stores;
 pub mod troubleshoot;
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[cfg(feature = "enterprise")]
-pub mod enterprise;
-
-#[cfg(feature = "enterprise")]
-use enterprise::telemetry::TelemetryApi;
-// SPDX-SnippetEnd
 
 use crate::auth::oauth::auth::OAuthApiHandler;
 use common::{Server, auth::AccessToken};
@@ -171,28 +162,6 @@ impl ManagementApi for Server {
                 self.handle_troubleshoot_api_request(req, path, &access_token, body)
                     .await
             }
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(feature = "enterprise")]
-            "telemetry" => {
-                // WARNING: TAMPERING WITH THIS FUNCTION IS STRICTLY PROHIBITED
-                // Any attempt to modify, bypass, or disable this license validation mechanism
-                // constitutes a severe violation of the Stalwart Enterprise License Agreement.
-                // Such actions may result in immediate termination of your license, legal action,
-                // and substantial financial penalties. Stalwart Labs LLC actively monitors for
-                // unauthorized modifications and will pursue all available legal remedies against
-                // violators to the fullest extent of the law, including but not limited to claims
-                // for copyright infringement, breach of contract, and fraud.
-
-                if self.core.is_enterprise_edition() {
-                    self.handle_telemetry_api_request(req, path, &access_token)
-                        .await
-                } else {
-                    Err(manage::enterprise())
-                }
-            }
-            // SPDX-SnippetEnd
             _ => Err(trc::ResourceEvent::NotFound.into_err()),
         }
     }

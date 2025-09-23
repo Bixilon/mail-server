@@ -138,33 +138,6 @@ impl QueueManagement for Server {
         let params = UrlParams::new(req.uri().query());
         let mut tenant_domains: Option<Vec<String>> = None;
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Limit to tenant domains
-        #[cfg(feature = "enterprise")]
-        if self.core.is_enterprise_edition()
-            && let Some(tenant) = access_token.tenant
-        {
-            tenant_domains = self
-                .core
-                .storage
-                .data
-                .list_principals(None, tenant.id.into(), &[Type::Domain], false, 0, 0)
-                .await
-                .map(|principals| {
-                    principals
-                        .items
-                        .into_iter()
-                        .map(|p| p.name)
-                        .collect::<Vec<_>>()
-                })
-                .caused_by(trc::location!())?
-                .into();
-        }
-
-        // SPDX-SnippetEnd
 
         match (
             path.get(1).copied().unwrap_or_default(),

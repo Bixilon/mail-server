@@ -331,20 +331,6 @@ impl EmailDeletion for Server {
                     .unarchive::<MessageMetadata>()
                     .caused_by(trc::location!())?;
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                // Hold blob for undeletion
-                #[cfg(feature = "enterprise")]
-                self.core.hold_undelete(
-                    &mut batch,
-                    Collection::Email.into(),
-                    &BlobHash::from(&metadata.blob_hash),
-                    u32::from(metadata.size) as usize,
-                );
-
-                // SPDX-SnippetEnd
 
                 // Delete message
                 metadata

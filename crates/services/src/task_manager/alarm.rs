@@ -431,17 +431,6 @@ async fn build_template(
         access_token.emails.first().unwrap().to_string()
     };
 
-    // SPDX-SnippetBegin
-    // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-    // SPDX-License-Identifier: LicenseRef-SEL
-    #[cfg(feature = "enterprise")]
-    let template = server
-        .core
-        .enterprise
-        .as_ref()
-        .and_then(|e| e.template_calendar_alarm.as_ref())
-        .unwrap_or(&server.core.groupware.alarms_template);
-    // SPDX-SnippetEnd
 
     #[cfg(not(feature = "enterprise"))]
     let template = &server.core.groupware.alarms_template;

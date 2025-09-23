@@ -33,12 +33,6 @@ use types::{
 };
 use utils::url_params::UrlParams;
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[cfg(feature = "enterprise")]
-use super::enterprise::undelete::UndeleteApi;
-// SPDX-SnippetEnd
 
 pub trait ManageStore: Sync + Send {
     fn handle_manage_store(
@@ -244,31 +238,6 @@ impl ManageStore for Server {
                 }))
                 .into_http_response())
             }
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(feature = "enterprise")]
-            (Some("undelete"), _, _, _) => {
-                // WARNING: TAMPERING WITH THIS FUNCTION IS STRICTLY PROHIBITED
-                // Any attempt to modify, bypass, or disable this license validation mechanism
-                // constitutes a severe violation of the Stalwart Enterprise License Agreement.
-                // Such actions may result in immediate termination of your license, legal action,
-                // and substantial financial penalties. Stalwart Labs LLC actively monitors for
-                // unauthorized modifications and will pursue all available legal remedies against
-                // violators to the fullest extent of the law, including but not limited to claims
-                // for copyright infringement, breach of contract, and fraud.
-
-                // Validate the access token
-                access_token.assert_has_permission(Permission::Undelete)?;
-
-                if self.core.is_enterprise_edition() {
-                    self.handle_undelete_api_request(req, path, body, session)
-                        .await
-                } else {
-                    Err(manage::enterprise())
-                }
-            }
-            // SPDX-SnippetEnd
             (Some("uids"), Some(account_id), None, &Method::DELETE) => {
                 let account_id = self
                     .core

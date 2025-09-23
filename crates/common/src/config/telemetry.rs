@@ -40,12 +40,6 @@ pub enum TelemetrySubscriberType {
     Webhook(WebhookTracer),
     #[cfg(unix)]
     JournalTracer(crate::telemetry::tracers::journald::Subscriber),
-    // SPDX-SnippetBegin
-    // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-    // SPDX-License-Identifier: LicenseRef-SEL
-    #[cfg(feature = "enterprise")]
-    StoreTracer(StoreTracer),
-    // SPDX-SnippetEnd
 }
 
 #[derive(Debug)]
@@ -92,15 +86,6 @@ pub struct WebhookTracer {
     pub headers: HeaderMap,
 }
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[derive(Debug)]
-#[cfg(feature = "enterprise")]
-pub struct StoreTracer {
-    pub store: store::Store,
-}
-// SPDX-SnippetEnd
 
 #[derive(Debug)]
 pub enum RotationStrategy {
@@ -483,12 +468,6 @@ impl Tracers {
                 TelemetrySubscriberType::JournalTracer(_) => {
                     EventType::Telemetry(TelemetryEvent::JournalError).into()
                 }
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                TelemetrySubscriberType::StoreTracer(_) => None,
-                // SPDX-SnippetEnd
             };
 
             // Parse disabled events
@@ -519,41 +498,6 @@ impl Tracers {
             }
         }
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Parse tracing history
-        #[cfg(feature = "enterprise")]
-        {
-            if config
-                .property_or_default("tracing.history.enable", "false")
-                .unwrap_or(false)
-                && let Some(store_id) = config.value_require("tracing.history.store")
-            {
-                if let Some(store) = stores.stores.get(store_id) {
-                    let mut tracer = TelemetrySubscriber {
-                        id: "history".to_string(),
-                        interests: Default::default(),
-                        lossy: false,
-                        typ: TelemetrySubscriberType::StoreTracer(StoreTracer {
-                            store: store.clone(),
-                        }),
-                    };
-
-                    for event_type in StoreTracer::default_events() {
-                        tracer.interests.set(event_type);
-                        global_interests.set(event_type);
-                    }
-
-                    tracers.push(tracer);
-                } else {
-                    let err = format!("Store {store_id} not found");
-                    config.new_build_error("tracing.history.store", err);
-                }
-            }
-        }
-        // SPDX-SnippetEnd
 
         // Parse webhooks
         for id in config.sub_keys("webhook", ".url") {

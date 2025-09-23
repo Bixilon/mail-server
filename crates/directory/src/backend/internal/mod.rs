@@ -21,17 +21,6 @@ pub struct PrincipalInfo {
 }
 
 impl PrincipalInfo {
-    // SPDX-SnippetBegin
-    // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-    // SPDX-License-Identifier: LicenseRef-SEL
-    #[cfg(feature = "enterprise")]
-    pub fn has_tenant_access(&self, tenant_id: Option<u32>) -> bool {
-        tenant_id.is_none_or(|tenant_id| {
-            self.tenant.is_some_and(|t| tenant_id == t)
-                || (self.typ == Type::Tenant && self.id == tenant_id)
-        })
-    }
-    // SPDX-SnippetEnd
 
     #[cfg(not(feature = "enterprise"))]
     pub fn has_tenant_access(&self, _tenant_id: Option<u32>) -> bool {

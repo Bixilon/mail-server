@@ -406,25 +406,6 @@ impl Server {
             }
         }
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        #[cfg(feature = "enterprise")]
-        if self.core.is_enterprise_edition()
-            && let Some(tenant) = quotas.tenant.filter(|tenant| tenant.quota != 0)
-        {
-            let used_quota = self.get_used_quota(tenant.id).await? as u64;
-
-            if used_quota + item_size > tenant.quota {
-                return Err(trc::LimitEvent::TenantQuota
-                    .into_err()
-                    .ctx(trc::Key::Limit, tenant.quota)
-                    .ctx(trc::Key::Size, used_quota));
-            }
-        }
-
-        // SPDX-SnippetEnd
 
         Ok(())
     }
@@ -456,32 +437,6 @@ impl Server {
             {
                 quotas.quota = principal.quota();
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                #[cfg(feature = "enterprise")]
-                if self.core.is_enterprise_edition()
-                    && let Some(tenant_id) = principal.tenant()
-                {
-                    quotas.tenant = TenantInfo {
-                        id: tenant_id,
-                        quota: self
-                            .core
-                            .storage
-                            .directory
-                            .query(QueryParams::id(tenant_id).with_return_member_of(false))
-                            .await
-                            .add_context(|err| {
-                                err.caused_by(trc::location!()).account_id(tenant_id)
-                            })?
-                            .map(|tenant| tenant.quota())
-                            .unwrap_or_default(),
-                    }
-                    .into();
-                }
-
-                // SPDX-SnippetEnd
             }
 
             quotas

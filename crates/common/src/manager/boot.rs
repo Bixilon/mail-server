@@ -428,12 +428,6 @@ impl BootManager {
 
                 // Enable telemetry
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                telemetry.enable(core.is_enterprise_edition());
-                // SPDX-SnippetEnd
 
                 #[cfg(not(feature = "enterprise"))]
                 telemetry.enable(false);

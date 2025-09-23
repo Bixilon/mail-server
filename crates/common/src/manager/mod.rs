@@ -22,13 +22,6 @@ const DEFAULT_SPAMFILTER_URL: &str =
     "https://github.com/stalwartlabs/spam-filter/releases/latest/download/spam-filter.toml";
 pub const WEBADMIN_KEY: &[u8] = "STALWART_WEBADMIN".as_bytes();
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[cfg(feature = "enterprise")]
-const DEFAULT_WEBADMIN_URL: &str =
-    "https://github.com/stalwartlabs/webadmin/releases/latest/download/webadmin.zip";
-// SPDX-SnippetEnd
 
 #[cfg(not(feature = "enterprise"))]
 const DEFAULT_WEBADMIN_URL: &str =

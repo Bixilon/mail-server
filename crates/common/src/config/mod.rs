@@ -73,26 +73,6 @@ impl Core {
         #[cfg(not(feature = "enterprise"))]
         let is_enterprise = false;
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-        #[cfg(feature = "enterprise")]
-        let enterprise =
-            crate::enterprise::Enterprise::parse(config, &config_manager, &stores, &data).await;
-
-        #[cfg(feature = "enterprise")]
-        let is_enterprise = enterprise.is_some();
-
-        #[cfg(feature = "enterprise")]
-        if !is_enterprise {
-            if data.is_enterprise_store() {
-                config
-                    .new_build_error("storage.data", "SQL read replicas is an Enterprise feature");
-                data = Store::None;
-            }
-            stores.disable_enterprise_only();
-        }
-        // SPDX-SnippetEnd
 
         let mut blob = config
             .value_require("storage.blob")
@@ -189,12 +169,6 @@ impl Core {
         }
 
         Self {
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(feature = "enterprise")]
-            enterprise,
-            // SPDX-SnippetEnd
             sieve: Scripting::parse(config, &stores).await,
             network: Network::parse(config),
             smtp: SmtpConfig::parse(config).await,
