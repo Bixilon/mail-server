@@ -6,11 +6,11 @@ WORKDIR /build
 
 
 ARG TARGET="x86_64-unknown-linux-musl"
-ARG FEATURES="mysql s3"
 RUN source "$HOME/.cargo/env" && rustup target add "$TARGET"
 RUN source "$HOME/.cargo/env" && rustup component add rustfmt
-    
+
 COPY . .
+ARG FEATURES="mysql s3 zenoh"
 RUN source "$HOME/.cargo/env" && cargo build --target "$TARGET" --release -p stalwart --no-default-features --features "$FEATURES"
 RUN source "$HOME/.cargo/env" && cargo build --target "$TARGET" --release -p stalwart-cli
 RUN cp -r "/build/target/$TARGET/release" "/output"
