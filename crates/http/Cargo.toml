@@ -1,6 +1,6 @@
 [package]
 name = "http"
-version = "0.15.5"
+version = "0.15.5-foss"
 edition = "2024"
 
 [dependencies]
