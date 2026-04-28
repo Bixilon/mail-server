@@ -36,12 +36,6 @@ impl Store {
             Self::MySQL(store) => store.get_value(key).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.get_value(key).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.get_value(key).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())
@@ -64,12 +58,6 @@ impl Store {
             Self::MySQL(store) => store.iterate(params, cb).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.iterate(params, cb).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.iterate(params, cb).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!());
@@ -97,12 +85,6 @@ impl Store {
             Self::MySQL(store) => store.get_counter(key).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.get_counter(key).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.get_counter(key).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())
@@ -150,12 +132,6 @@ impl Store {
             Self::MySQL(store) => store.write(batch).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.write(batch).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.write(batch).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         };
 
@@ -230,12 +206,6 @@ impl Store {
             Self::MySQL(store) => store.purge_store().await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.purge_store().await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.purge_store().await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())
@@ -253,12 +223,6 @@ impl Store {
             Self::MySQL(store) => store.delete_range(from, to).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.delete_range(from, to).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.delete_range(from, to).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())
@@ -401,12 +365,6 @@ impl Store {
             Self::MySQL(store) => store.get_blob(key, range).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.get_blob(key, range).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.get_blob(key, range).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())
@@ -424,12 +382,6 @@ impl Store {
             Self::MySQL(store) => store.put_blob(key, data).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.put_blob(key, data).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.put_blob(key, data).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())
@@ -447,12 +399,6 @@ impl Store {
             Self::MySQL(store) => store.delete_blob(key).await,
             #[cfg(feature = "rocks")]
             Self::RocksDb(store) => store.delete_blob(key).await,
-            // SPDX-SnippetBegin
-            // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-            // SPDX-License-Identifier: LicenseRef-SEL
-            #[cfg(all(feature = "enterprise", any(feature = "postgres", feature = "mysql")))]
-            Self::SQLReadReplica(store) => store.delete_blob(key).await,
-            // SPDX-SnippetEnd
             Self::None => Err(trc::StoreEvent::NotConfigured.into()),
         }
         .caused_by(trc::location!())

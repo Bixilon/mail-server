@@ -98,35 +98,6 @@ impl PrincipalManager for Server {
                     Type::Resource | Type::Location | Type::Other => Permission::PrincipalCreate,
                 })?;
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                #[cfg(feature = "enterprise")]
-                {
-                    if (matches!(principal.typ(), Type::Tenant)
-                        || principal.has_field(PrincipalField::Tenant))
-                        && !self.core.is_enterprise_edition()
-                    {
-                        return Err(manage::enterprise());
-                    }
-
-                    if matches!(principal.typ(), Type::Individual)
-                        && self.core.is_enterprise_edition()
-                        && !self.can_create_account().await?
-                    {
-                        return Err(manage::error(
-                            "License account limit reached",
-                            format!(
-                                "Enterprise licensed account limit reached: {} accounts licensed.",
-                                self.licensed_accounts()
-                            )
-                            .into(),
-                        ));
-                    }
-                }
-
-                // SPDX-SnippetEnd
 
                 // Make sure the current directory supports updates
                 if matches!(principal.typ(), Type::Individual) {
@@ -269,30 +240,6 @@ impl PrincipalManager for Server {
 
                 let mut tenant = access_token.tenant.map(|t| t.id);
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                {
-                    if self.core.is_enterprise_edition() {
-                        if tenant.is_none() {
-                            // Limit search to current tenant
-                            if let Some(tenant_name) = params.get("tenant") {
-                                tenant = self
-                                    .core
-                                    .storage
-                                    .data
-                                    .get_principal_info(tenant_name)
-                                    .await?
-                                    .filter(|p| p.typ == Type::Tenant)
-                                    .map(|p| p.id);
-                            }
-                        }
-                    } else if types.contains(&Type::Tenant) {
-                        return Err(manage::enterprise());
-                    }
-                }
-                // SPDX-SnippetEnd
 
                 let principals = self
                     .store()
@@ -362,30 +309,6 @@ impl PrincipalManager for Server {
 
                 let mut tenant = access_token.tenant.map(|t| t.id);
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                {
-                    if self.core.is_enterprise_edition() {
-                        if tenant.is_none() {
-                            // Limit search to current tenant
-                            if let Some(tenant_name) = params.get("tenant") {
-                                tenant = self
-                                    .core
-                                    .storage
-                                    .data
-                                    .get_principal_info(tenant_name)
-                                    .await?
-                                    .filter(|p| p.typ == Type::Tenant)
-                                    .map(|p| p.id);
-                            }
-                        }
-                    } else if typ == Type::Tenant {
-                        return Err(manage::enterprise());
-                    }
-                }
-                // SPDX-SnippetEnd
 
                 let principals = self
                     .store()
@@ -444,18 +367,6 @@ impl PrincipalManager for Server {
                     .map(|p| (p.id, p.typ))
                     .ok_or_else(|| not_found(name.to_string()))?;
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                #[cfg(feature = "enterprise")]
-                {
-                    if matches!(typ, Type::Tenant) && !self.core.is_enterprise_edition() {
-                        return Err(manage::enterprise());
-                    }
-                }
-
-                // SPDX-SnippetEnd
 
                 match *method {
                     Method::GET => {

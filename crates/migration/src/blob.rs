@@ -216,40 +216,6 @@ pub(crate) async fn migrate_blobs_v014(server: &Server) -> trc::Result<()> {
                     );
             }
             OldType::Undelete { deleted_at, size } => {
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-
-                #[cfg(feature = "enterprise")]
-                {
-                    batch
-                        .set(
-                            BlobOp::Link {
-                                hash: entry.hash.clone(),
-                                to: BlobLink::Temporary { until: entry.until },
-                            },
-                            vec![BlobLink::UNDELETE_LINK],
-                        )
-                        .set(
-                            BlobOp::Undelete {
-                                hash: entry.hash,
-                                until: entry.until,
-                            },
-                            Archiver::new(common::enterprise::undelete::DeletedItem {
-                                typ: common::enterprise::undelete::DeletedItemType::Email {
-                                    from: "unknown".into(),
-                                    subject: "unknown".into(),
-                                    received_at: deleted_at,
-                                },
-                                size,
-                                deleted_at,
-                            })
-                            .serialize()
-                            .caused_by(trc::location!())?,
-                        );
-                }
-
-                // SPDX-SnippetEnd
             }
             OldType::Temp => {
                 batch.set(

@@ -91,17 +91,6 @@ impl Directories {
 
             // Build directory
             if let Some(store) = store {
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                if store.is_enterprise_directory() && !is_enterprise {
-                    let message =
-                        format!("Directory {protocol:?} is an Enterprise Edition feature");
-                    config.new_parse_error(("directory", id, "type"), message);
-                    continue;
-                }
-                // SPDX-SnippetEnd
 
                 let directory = Arc::new(Directory {
                     store,

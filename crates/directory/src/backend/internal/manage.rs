@@ -276,49 +276,6 @@ impl ManageDirectory for Store {
         }
         let mut valid_domains: AHashSet<String> = AHashSet::new();
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Validate tenant
-        #[cfg(feature = "enterprise")]
-        if let Some(tenant_id) = tenant_id {
-            let tenant = self
-                .query(crate::QueryParams::id(tenant_id).with_return_member_of(false))
-                .await?
-                .ok_or_else(|| {
-                    trc::ManageEvent::NotFound
-                        .into_err()
-                        .id(tenant_id)
-                        .details("Tenant not found")
-                        .caused_by(trc::location!())
-                })?;
-
-            // Enforce tenant quotas
-            if let Some(limit) = tenant
-                .directory_quota(&principal_set.typ())
-                .filter(|q| *q > 0)
-            {
-                // Obtain number of principals
-                let total = self
-                    .count_principals(None, principal_set.typ().into(), tenant_id.into())
-                    .await
-                    .caused_by(trc::location!())? as u32;
-
-                if total >= limit {
-                    trc::bail!(
-                        trc::LimitEvent::TenantQuota
-                            .into_err()
-                            .details("Tenant principal quota exceeded")
-                            .ctx(trc::Key::Details, principal_set.typ().description())
-                            .ctx(trc::Key::Limit, limit)
-                            .ctx(trc::Key::Total, total)
-                    );
-                }
-            }
-        }
-
-        // SPDX-SnippetEnd
 
         // Make sure new name is not taken
         if self
@@ -332,58 +289,6 @@ impl ManageDirectory for Store {
 
         let mut create_principal = Principal::new(0, principal_set.typ());
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Obtain tenant id, only if no default tenant is provided
-        #[cfg(feature = "enterprise")]
-        if let (Some(tenant_name), None) =
-            (principal_set.take_str(PrincipalField::Tenant), tenant_id)
-        {
-            tenant_id = self
-                .get_principal_info(&tenant_name)
-                .await
-                .caused_by(trc::location!())?
-                .filter(|v| v.typ == Type::Tenant)
-                .ok_or_else(|| not_found(tenant_name.clone()))?
-                .id
-                .into();
-        }
-
-        // Tenants must provide principal names including a valid domain
-        #[cfg(feature = "enterprise")]
-        if let Some(tenant_id) = tenant_id {
-            if matches!(principal_set.typ, Type::Tenant) {
-                return Err(error(
-                    "Invalid field",
-                    "Tenants cannot contain a tenant field".into(),
-                ));
-            }
-
-            create_principal.data.push(PrincipalData::Tenant(tenant_id));
-
-            if !matches!(create_principal.typ, Type::Tenant | Type::Domain) {
-                if let Some(domain) = name.try_domain_part()
-                    && self
-                        .get_principal_info(domain)
-                        .await
-                        .caused_by(trc::location!())?
-                        .filter(|v| v.typ == Type::Domain && v.has_tenant_access(tenant_id.into()))
-                        .is_some()
-                {
-                    valid_domains.insert(domain.into());
-                }
-
-                if valid_domains.is_empty() {
-                    return Err(error(
-                        "Invalid principal name",
-                        "Principal name must include a valid domain assigned to the tenant".into(),
-                    ));
-                }
-            }
-        }
-        // SPDX-SnippetEnd
 
         // Set fields
         create_principal.name = name;
@@ -708,126 +613,6 @@ impl ManageDirectory for Store {
             }
         });
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Make sure tenant has no data
-        #[cfg(feature = "enterprise")]
-        match typ {
-            Type::Individual | Type::Group => {
-                // Update tenant quota
-                if let Some(tenant_id) = tenant {
-                    let quota = self
-                        .get_counter(DirectoryClass::UsedQuota(principal_id))
-                        .await
-                        .caused_by(trc::location!())?;
-                    if quota > 0 {
-                        batch.add(DirectoryClass::UsedQuota(tenant_id), -quota);
-                    }
-                }
-            }
-            Type::Tenant => {
-                let tenant_members = self
-                    .list_principals(
-                        None,
-                        principal_id.into(),
-                        &[
-                            Type::Individual,
-                            Type::Group,
-                            Type::Role,
-                            Type::List,
-                            Type::Resource,
-                            Type::Other,
-                            Type::Location,
-                            Type::Domain,
-                            Type::ApiKey,
-                        ],
-                        false,
-                        0,
-                        0,
-                    )
-                    .await
-                    .caused_by(trc::location!())?;
-
-                if tenant_members.total > 0 {
-                    let mut message =
-                        String::from("Tenant must have no members to be deleted: Found: ");
-
-                    for (num, principal) in tenant_members.items.iter().enumerate() {
-                        if num > 0 {
-                            message.push_str(", ");
-                        }
-                        message.push_str(principal.name());
-                    }
-
-                    if tenant_members.total > 5 {
-                        message.push_str(" and ");
-                        message.push_str(&(tenant_members.total - 5).to_string());
-                        message.push_str(" others");
-                    }
-
-                    return Err(error("Tenant has members", message.into()));
-                }
-            }
-            Type::Domain => {
-                if let Some(tenant_id) = tenant {
-                    let name = principal.name.as_str();
-                    let tenant_members = self
-                        .list_principals(
-                            None,
-                            tenant_id.into(),
-                            &[
-                                Type::Individual,
-                                Type::Group,
-                                Type::Role,
-                                Type::List,
-                                Type::Resource,
-                                Type::Other,
-                                Type::Location,
-                            ],
-                            false,
-                            0,
-                            0,
-                        )
-                        .await
-                        .caused_by(trc::location!())?;
-                    let domain_members = tenant_members
-                        .items
-                        .iter()
-                        .filter(|v| {
-                            v.name()
-                                .rsplit_once('@')
-                                .is_some_and(|(_, d)| d.eq_ignore_ascii_case(name))
-                        })
-                        .collect::<Vec<_>>();
-                    let total_domain_members = domain_members.len();
-
-                    if total_domain_members > 0 {
-                        let mut message =
-                            String::from("Domains must have no members to be deleted: Found: ");
-
-                        for (num, principal) in domain_members.iter().enumerate() {
-                            if num > 0 {
-                                message.push_str(", ");
-                            }
-                            message.push_str(principal.name());
-                        }
-
-                        if total_domain_members > 5 {
-                            message.push_str(" and ");
-                            message.push_str(&(total_domain_members - 5).to_string());
-                            message.push_str(" others");
-                        }
-
-                        return Err(error("Domain has members", message.into()));
-                    }
-                }
-            }
-
-            _ => {}
-        }
-        // SPDX-SnippetEnd
 
         // Revoke ACLs, obtain all changed principals
         let mut changed_principals = ChangedPrincipals::default();
@@ -989,27 +774,6 @@ impl ManageDirectory for Store {
 
         let mut used_quota: Option<i64> = None;
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Obtain used quota
-        #[cfg(feature = "enterprise")]
-        if tenant_id.is_none()
-            && changes
-                .iter()
-                .any(|c| matches!(c.field, PrincipalField::Tenant))
-        {
-            let quota = self
-                .get_counter(DirectoryClass::UsedQuota(principal_id))
-                .await
-                .caused_by(trc::location!())?;
-            if quota > 0 {
-                used_quota = Some(quota);
-            }
-        }
-
-        // SPDX-SnippetEnd
 
         // Allowed principal types for Member fields
         let allowed_member_types = match principal_type {
@@ -1090,78 +854,6 @@ impl ManageDirectory for Store {
                     }
                 }
 
-                // SPDX-SnippetBegin
-                // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-                // SPDX-License-Identifier: LicenseRef-SEL
-                #[cfg(feature = "enterprise")]
-                (
-                    PrincipalAction::Set,
-                    PrincipalField::Tenant,
-                    PrincipalValue::String(tenant_name),
-                ) if tenant_id.is_none() => {
-                    if !tenant_name.is_empty() {
-                        let tenant_info = self
-                            .get_principal_info(&tenant_name)
-                            .await
-                            .caused_by(trc::location!())?
-                            .ok_or_else(|| not_found(tenant_name.clone()))?;
-
-                        if tenant_info.typ != Type::Tenant {
-                            return Err(error(
-                                "Not a tenant",
-                                format!("Principal {tenant_name:?} is not a tenant").into(),
-                            ));
-                        }
-
-                        if principal.tenant() == Some(tenant_info.id) {
-                            continue;
-                        }
-
-                        // Update quota
-                        if let Some(used_quota) = used_quota {
-                            if let Some(old_tenant_id) = principal.tenant() {
-                                batch.add(DirectoryClass::UsedQuota(old_tenant_id), -used_quota);
-                            }
-                            batch.add(DirectoryClass::UsedQuota(tenant_info.id), used_quota);
-                        }
-
-                        // Tenant changed, update changed principals
-                        changed_principals.add_change(principal_id, principal_type, change.field);
-
-                        principal
-                            .data
-                            .retain(|v| !matches!(v, PrincipalData::Tenant(_)));
-                        principal.data.push(PrincipalData::Tenant(tenant_info.id));
-                        pinfo_name =
-                            PrincipalInfo::new(principal_id, principal_type, tenant_info.id.into())
-                                .serialize();
-                    } else if let Some(tenant_id) = principal.tenant() {
-                        // Update quota
-                        if let Some(used_quota) = used_quota {
-                            batch.add(DirectoryClass::UsedQuota(tenant_id), -used_quota);
-                        }
-
-                        // Tenant changed, update changed principals
-                        changed_principals.add_change(principal_id, principal_type, change.field);
-
-                        principal
-                            .data
-                            .retain(|v| !matches!(v, PrincipalData::Tenant(_)));
-                        pinfo_name =
-                            PrincipalInfo::new(principal_id, principal_type, None).serialize();
-                    } else {
-                        continue;
-                    }
-
-                    batch.set(
-                        ValueClass::Directory(DirectoryClass::NameToId(
-                            principal.name().as_bytes().to_vec(),
-                        )),
-                        pinfo_name.clone(),
-                    );
-                }
-
-                // SPDX-SnippetEnd
                 (
                     PrincipalAction::Set,
                     PrincipalField::Secrets,
@@ -2492,23 +2184,6 @@ impl ManageDirectory for Store {
             }
         }
 
-        // SPDX-SnippetBegin
-        // SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-        // SPDX-License-Identifier: LicenseRef-SEL
-
-        // Map tenant name
-        #[cfg(feature = "enterprise")]
-        if let Some(tenant_id) = tenant_id
-            && (fields.is_empty() || fields.contains(&PrincipalField::Tenant))
-            && let Some(name) = self
-                .get_principal_name(tenant_id)
-                .await
-                .caused_by(trc::location!())?
-        {
-            result.set(PrincipalField::Tenant, name);
-        }
-
-        // SPDX-SnippetEnd
 
         // Map fields
         if fields.is_empty() || fields.contains(&PrincipalField::Name) {

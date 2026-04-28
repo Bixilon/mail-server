@@ -24,13 +24,6 @@ pub const WEBADMIN_KEY: &[u8] = "STALWART_WEBADMIN".as_bytes();
 pub const SPAM_TRAINER_KEY: &[u8] = "STALWART_SPAM_TRAIN_DATA.lz4".as_bytes();
 pub const SPAM_CLASSIFIER_KEY: &[u8] = "STALWART_SPAM_CLASSIFIER_MODEL.lz4".as_bytes();
 
-// SPDX-SnippetBegin
-// SPDX-FileCopyrightText: 2020 Stalwart Labs LLC <hello@stalw.art>
-// SPDX-License-Identifier: LicenseRef-SEL
-#[cfg(feature = "enterprise")]
-const DEFAULT_WEBADMIN_URL: &str =
-    "https://github.com/stalwartlabs/webadmin/releases/latest/download/webadmin.zip";
-// SPDX-SnippetEnd
 
 #[cfg(not(feature = "enterprise"))]
 const DEFAULT_WEBADMIN_URL: &str =
